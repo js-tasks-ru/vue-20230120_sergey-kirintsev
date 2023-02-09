@@ -1,13 +1,28 @@
 <template>
-  <div :class="classes">
+  <div class="toast" :class="`toast_${type.toLowerCase()}`">
     <ui-icon class="toast__icon" :icon="icon" />
     <span>{{ message }}</span>
-    <button class="toast__close" @click="$emit('close', id)">✘</button>
+    <button class="toast__close" @click="$emit('close')">✘</button>
   </div>
 </template>
 
 <script>
 import UiIcon from './UiIcon.vue';
+
+const toastConfig = {
+  success: {
+    icon: 'check-circle',
+  },
+  error: {
+    icon: 'alert-circle',
+  },
+  info: {
+    icon: 'user',
+  },
+  warning: {
+    icon: 'tv',
+  },
+};
 
 export default {
   name: 'ToastItem',
@@ -17,10 +32,6 @@ export default {
   },
 
   props: {
-    id: {
-      type: [String, Number],
-      required: true,
-    },
     type: {
       type: String,
       required: true,
@@ -29,17 +40,13 @@ export default {
       type: String,
       required: true,
     },
-    icon: {
-      type: String,
-      required: true,
-    },
   },
 
   emits: ['close'],
 
   computed: {
-    classes() {
-      return `toast toast_${this.type.toLowerCase()}`;
+    icon() {
+      return toastConfig[this.type].icon;
     },
   },
 };

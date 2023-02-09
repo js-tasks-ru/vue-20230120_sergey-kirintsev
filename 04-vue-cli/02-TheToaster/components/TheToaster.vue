@@ -7,20 +7,7 @@ import ToastList from './ToastList.vue';
 
 const removeTimeout = 5_000;
 
-const toastConfig = {
-  success: {
-    icon: 'check-circle',
-  },
-  error: {
-    icon: 'alert-circle',
-  },
-  info: {
-    icon: 'user',
-  },
-  warning: {
-    icon: 'tv',
-  },
-};
+let lastId = 0;
 
 export default {
   name: 'TheToaster',
@@ -48,7 +35,6 @@ export default {
       const id = this.getId();
       this.toasts.push({
         type: 'success',
-        icon: 'check-circle',
         message,
         id,
       });
@@ -59,7 +45,6 @@ export default {
       const id = this.getId();
       this.toasts.push({
         type: 'error',
-        icon: 'alert-circle',
         message,
         id,
       });
@@ -67,14 +52,13 @@ export default {
     },
 
     getId() {
-      return Date.now();
+      return lastId++;
     },
 
     createToast(type, message) {
       const id = this.getId();
       this.toasts.push({
         type,
-        icon: toastConfig[type].icon,
         message,
         id,
       });

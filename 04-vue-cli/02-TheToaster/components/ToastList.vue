@@ -1,6 +1,12 @@
 <template>
   <div class="toasts">
-    <toast-item v-for="toast in toasts" :key="toast.id" v-bind="toast" @close="onClose" />
+    <toast-item
+      v-for="toast in toasts"
+      :key="toast.id"
+      :type="toast.type"
+      :message="toast.message"
+      @close="onClose(toast.id)"
+    />
   </div>
 </template>
 

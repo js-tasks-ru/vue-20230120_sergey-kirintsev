@@ -20,7 +20,7 @@
 
     <div class="calendar-view__grid">
       <div
-        v-for="{ day, meetupsList } in calendarDates"
+        v-for="{ day, meetupsList } in calendarList"
         :key="day.getTime()"
         :class="['calendar-view__cell', { 'calendar-view__cell_inactive': !isCurrentMonth(day) }]"
         tabindex="0"
@@ -112,11 +112,22 @@ export default {
 
     calendarDates() {
       const currentDay = new Date(this.calendarFirstDay);
-      return new Array(this.calendarLength).fill(null).map((_, index) => {
+      return new Array(this.calendarLength).fill(null).map(() => {
         const day = new Date(currentDay);
-        const meetupsList = this.meetups.filter((meetup) => this.isEqualDates(meetup.date, day));
-
         currentDay.setDate(currentDay.getDate() + 1);
+        return day;
+      });
+    },
+
+    filteredMeetups() {
+      const firstDay = this.calendarDates.at(0).getTime();
+      const lastDay = this.calendarDates.at(-1).getTime();
+      return this.meetups.filter(({ date }) => date >= firstDay && date <= lastDay);
+    },
+
+    calendarList() {
+      return this.calendarDates.map((day) => {
+        const meetupsList = this.filteredMeetups.filter((meetup) => this.isEqualDates(meetup.date, day));
         return { day, meetupsList };
       });
     },
