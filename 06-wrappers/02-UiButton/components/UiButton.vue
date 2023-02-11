@@ -1,11 +1,46 @@
 <template>
-  <button class="button button_secondary button_block">BUTTON</button>
+  <component :is="tag" :type="typeEl" class="button" :class="[`button_${variant}`, { button_block: block }]">
+    <slot />
+  </component>
 </template>
 
 <script>
-export default {
+import { defineComponent } from 'vue';
+
+export default defineComponent({
   name: 'UiButton',
-};
+
+  props: {
+    tag: {
+      type: [String, Object],
+      default: 'button',
+    },
+    variant: {
+      type: String,
+      default: 'secondary',
+      validator(value) {
+        return ['primary', 'secondary', 'danger'].includes(value);
+      },
+    },
+    block: {
+      type: Boolean,
+      default: false,
+    },
+    type: {
+      type: String,
+      default: 'button',
+    },
+  },
+
+  computed: {
+    typeEl() {
+      if (this.tag === 'button') {
+        return this.type;
+      }
+      return null;
+    },
+  },
+});
 </script>
 
 <style scoped>
