@@ -21,7 +21,7 @@
       }"
       v-bind="$attrs"
       :value="modelValue"
-      @[updateEvent]="$emit('update:modelValue', $event.target.value)"
+      @[updateEvent]="$emit('update:modelValue', $event.target.valueAsNumber)"
     />
 
     <div v-if="$slots['right-icon']" class="input-group__icon">
