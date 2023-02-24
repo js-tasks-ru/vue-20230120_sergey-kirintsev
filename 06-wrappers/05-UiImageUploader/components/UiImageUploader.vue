@@ -1,15 +1,108 @@
 <template>
   <div class="image-uploader">
-    <label class="image-uploader__preview image-uploader__preview-loading" style="--bg-url: url('/link.jpeg')">
-      <span class="image-uploader__text">Загрузить изображение</span>
-      <input type="file" accept="image/*" class="image-uploader__input" />
+    <label
+      class="image-uploader__preview"
+      :class="{ 'image-uploader__preview-loading': isUploading }"
+      :style="backgroundUrl"
+      @click="handleClickLabel"
+    >
+      <span v-if="isUploading" class="image-uploader__text">Загрузка...</span>
+      <span v-else-if="selectedFile" class="image-uploader__text">Удалить изображение</span>
+      <span v-else class="image-uploader__text">Загрузить изображение</span>
     </label>
+    <input
+      ref="input"
+      v-bind="$attrs"
+      :disabled="isUploading"
+      type="file"
+      accept="image/*"
+      class="image-uploader__input"
+      @change="handleChange"
+    />
   </div>
 </template>
 
 <script>
 export default {
   name: 'UiImageUploader',
+
+  inheritAttrs: false,
+
+  props: {
+    preview: {
+      type: String,
+    },
+    uploader: {
+      type: Function,
+    },
+  },
+
+  emits: ['select', 'upload', 'error', 'remove'],
+
+  data() {
+    return {
+      selectedFile: undefined,
+      isUploading: false,
+    };
+  },
+
+  computed: {
+    backgroundUrl() {
+      if (this.selectedFile) {
+        return `--bg-url: url(${this.selectedFile})`;
+      }
+      return null;
+    },
+  },
+
+  created() {
+    if (this.preview) {
+      this.selectedFile = this.preview;
+    }
+  },
+
+  methods: {
+    handleChange(e) {
+      const file = e.target.files[0];
+
+      this.selectedFile = URL.createObjectURL(file);
+
+      this.$emit('select', file);
+
+      this.uploadImage(file);
+    },
+
+    uploadImage(file) {
+      if (typeof this.uploader === 'function') {
+        this.isUploading = true;
+        this.uploader(file)
+          .then((response) => {
+            this.$emit('upload', response);
+          })
+          .catch((error) => {
+            this.$refs.input.value = null;
+            this.selectedFile = undefined;
+            this.$emit('error', error);
+          })
+          .finally(() => {
+            this.isUploading = false;
+          });
+      }
+    },
+
+    handleClickLabel(e) {
+      if (this.isUploading) {
+        return;
+      }
+      if (this.selectedFile) {
+        this.$refs.input.value = null;
+        this.$emit('remove');
+        this.selectedFile = undefined;
+      } else {
+        this.$refs.input.click();
+      }
+    },
+  },
 };
 </script>
 

@@ -1,13 +1,31 @@
 <template>
-  <div class="input-group input-group_icon input-group_icon-left input-group_icon-right">
-    <div class="input-group__icon">
-      <img class="icon" alt="icon" />
+  <div
+    class="input-group"
+    :class="{
+      'input-group_icon': checkSlots(),
+      'input-group_icon-left': hasLeftIconSlot(),
+      'input-group_icon-right': hasRightIconSlot(),
+    }"
+  >
+    <div v-if="hasLeftIconSlot()" class="input-group__icon">
+      <slot name="left-icon" />
     </div>
 
-    <input ref="input" class="form-control form-control_rounded form-control_sm" />
+    <component
+      :is="multiline ? 'textarea' : 'input'"
+      ref="input"
+      v-bind="$attrs"
+      :class="{
+        'form-control_rounded': rounded,
+        'form-control_sm': small,
+      }"
+      :value="modelValue"
+      class="form-control"
+      @[updateEvent]="$emit('update:modelValue', $event.target.value)"
+    />
 
-    <div class="input-group__icon">
-      <img class="icon" alt="icon" />
+    <div v-if="hasRightIconSlot()" class="input-group__icon">
+      <slot name="right-icon" />
     </div>
   </div>
 </template>
@@ -15,6 +33,64 @@
 <script>
 export default {
   name: 'UiInput',
+
+  inheritAttrs: false,
+
+  props: {
+    modelValue: {
+      type: [String, Boolean],
+    },
+    modelModifiers: {
+      default: () => ({}),
+    },
+    small: {
+      type: Boolean,
+      default: false,
+    },
+    rounded: {
+      type: Boolean,
+      default: false,
+    },
+    multiline: {
+      type: Boolean,
+      default: false,
+    },
+  },
+
+  emits: ['update:modelValue'],
+
+  computed: {
+    modelValueProxy: {
+      get() {
+        return this.modelValue;
+      },
+      set(value) {
+        this.$emit('update:modelValue', value);
+      },
+    },
+
+    updateEvent() {
+      return this.modelModifiers.lazy ? 'change' : 'input';
+    },
+  },
+
+  methods: {
+    checkSlots() {
+      return !!this.$slots['left-icon'] || !!this.$slots['right-icon'];
+    },
+
+    hasLeftIconSlot() {
+      return !!this.$slots['left-icon'];
+    },
+
+    hasRightIconSlot() {
+      return !!this.$slots['right-icon'];
+    },
+
+    focus() {
+      this.$refs.input.focus();
+    },
+  },
 };
 </script>
 
