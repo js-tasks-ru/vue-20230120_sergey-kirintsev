@@ -1,5 +1,5 @@
 <template>
-  <UiInput v-model="modelValueProxy" :type="type" :step="step">
+  <UiInput :model-value="computedValue" :type="type" :step="step" @input="handleInput">
     <template v-for="slotName in Object.keys($slots)" #[slotName]>
       <slot :name="slotName" />
     </template>
@@ -39,25 +39,26 @@ export default {
       return date.getTimezoneOffset() * 60_000;
     },
 
-    modelValueProxy: {
-      get() {
-        if (this.modelValue) {
-          const dateStr = new Date(this.modelValue).toISOString();
-          if (this.type === 'date') {
-            return dateStr.slice(0, 10);
-          }
-          if (this.type === 'time') {
-            return dateStr.slice(11, 16);
-          }
-          if (this.type === 'datetime-local') {
-            return dateStr.slice(0, 16);
-          }
+    computedValue() {
+      if (this.modelValue) {
+        const dateStr = new Date(this.modelValue).toISOString();
+        if (this.type === 'date') {
+          return dateStr.slice(0, 10);
         }
-        return '';
-      },
-      set(value) {
-        this.$emit('update:modelValue', value);
-      },
+        if (this.type === 'time') {
+          return dateStr.slice(11, 16);
+        }
+        if (this.type === 'datetime-local') {
+          return dateStr.slice(0, 16);
+        }
+      }
+      return '';
+    },
+  },
+
+  methods: {
+    handleInput(e) {
+      this.$emit('update:modelValue', e.target.valueAsNumber);
     },
   },
 };

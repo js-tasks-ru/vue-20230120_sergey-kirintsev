@@ -11,31 +11,17 @@
       <slot name="left-icon" />
     </div>
 
-    <textarea
-      v-if="multiline"
+    <component
+      :is="multiline ? 'textarea' : 'input'"
       ref="input"
       v-bind="$attrs"
-      v-model="modelValueProxy"
-      class="form-control"
       :class="{
         'form-control_rounded': rounded,
         'form-control_sm': small,
       }"
-      @input="onInput"
-    />
-
-    <input
-      v-else
-      ref="input"
-      v-bind="$attrs"
       :value="modelValue"
-      :class="{
-        'form-control_rounded': rounded,
-        'form-control_sm': small,
-      }"
       class="form-control"
-      @change="onChange"
-      @input="onInput"
+      @[updateEvent]="$emit('update:modelValue', $event.target.value)"
     />
 
     <div v-if="hasRightIconSlot()" class="input-group__icon">
@@ -83,8 +69,8 @@ export default {
       },
     },
 
-    hasLazy() {
-      return this.modelModifiers?.lazy;
+    updateEvent() {
+      return this.modelModifiers.lazy ? 'change' : 'input';
     },
   },
 
@@ -103,17 +89,6 @@ export default {
 
     focus() {
       this.$refs.input.focus();
-    },
-
-    onInput(e) {
-      if (!this.hasLazy) {
-        this.$emit('update:modelValue', e.target.value);
-      }
-    },
-    onChange(e) {
-      if (this.hasLazy) {
-        this.$emit('update:modelValue', e.target.value);
-      }
     },
   },
 };
